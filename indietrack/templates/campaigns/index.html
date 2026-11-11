@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Campaign Manager — IndieTrack{% endblock %}
+{% block content %}
+
+<!-- Header & Create Campaign -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+  <div>
+    <h1 class="h3 fw-bold text-main mb-1">Promotional Campaigns</h1>
+    <p class="text-secondary small mb-0">Track advertising and promotional pushes across Spotify, YouTube, Instagram, and TikTok.</p>
+  </div>
+  <a href="{{ url_for('campaigns.create') }}" class="btn btn-indie-primary">
+    <i class="bi bi-megaphone me-1"></i> Launch New Campaign
+  </a>
+</div>
+
+<!-- Filters Bar -->
+<div class="indie-card p-3 mb-4">
+  <form method="GET" action="{{ url_for('campaigns.index') }}" class="row g-2 align-items-center">
+    <div class="col-md-5">
+      <select name="platform" class="form-select">
+        <option value="">All Platforms / Channels</option>
+        {% for plat in platforms %}
+          <option value="{{ plat }}" {% if platform_filter == plat %}selected{% endif %}>{{ plat }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <select name="status" class="form-select">
+        <option value="">All Campaign Statuses</option>
+        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active / Running</option>
+        <option value="planning" {% if status_filter == 'planning' %}selected{% endif %}>Planning</option>
+        <option value="paused" {% if status_filter == 'paused' %}selected{% endif %}>Paused</option>
+        <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+      </select>
+    </div>
+
+    <div class="col-md-3 d-flex gap-2">
+      <button type="submit" class="btn btn-indie-outline w-100">Filter</button>
+      {% if platform_filter or status_filter %}
+        <a href="{{ url_for('campaigns.index') }}" class="btn btn-outline-secondary" title="Clear Filters">
+          <i class="bi bi-x-lg"></i>
+        </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- Campaign Cards Grid -->
+{% if campaigns %}
+  <div class="row g-3">
+    {% for camp in campaigns %}
+      <div class="col-md-6 col-xl-4">
+        <div class="indie-card p-4 h-100 position-relative d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="badge bg-secondary-subtle text-secondary border">
+              <i class="bi bi-broadcast me-1"></i> {{ camp.platform }}
+            </span>
+            <span class="badge {% if camp.status == 'active' %}badge-status-active{% else %}badge-status-demo{% endif %}">
+              {{ camp.status | upper }}
+            </span>
+          </div>
+
+          <h2 class="h5 fw-bold text-main mb-1">
+            <a href="{{ url_for('campaigns.detail', campaign_id=camp.campaign_id) }}" class="text-main text-decoration-none">
+              {{ camp.campaign_name }}
+            </a>
+          </h2>
+          <div class="small text-secondary mb-3">
+            <i class="bi bi-music-note me-1"></i> {{ camp.song.title }}
+          </div>
+
+          <!-- Mini Metrics Strip -->
+          <div class="row g-2 text-center p-2 rounded-3 mb-3" style="background-color: var(--bg-surface-elevated);">
+            <div class="col-4">
+              <div class="small text-muted">Clicks</div>
+              <div class="fw-bold text-info">{{ "{:,}".format(camp.total_clicks) }}</div>
+            </div>
+            <div class="col-4">
+              <div class="small text-muted">Spend</div>
+              <div class="fw-bold text-warning">${{ "{:.2f}".format(camp.total_spend) }}</div>
+            </div>
+            <div class="col-4">
+              <div class="small text-muted">Avg CPC</div>
+              <div class="fw-bold text-success">${{ "{:.2f}".format(camp.cost_per_click) }}</div>
+            </div>
+          </div>
+
+          <div class="small text-muted mb-3">
+            <span><i class="bi bi-calendar3 me-1"></i> {{ camp.start_date.strftime("%b %d") }}{% if camp.end_date %} &mdash; {{ camp.end_date.strftime("%b %d, %Y") }}{% endif %}</span>
+            <span class="float-end">Budget: ${{ "{:,.2f}".format(camp.budget) }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pt-3 border-top border-subtle mt-auto">
+            <a href="{{ url_for('campaigns.detail', campaign_id=camp.campaign_id) }}" class="btn btn-indie-primary btn-sm">
+              <i class="bi bi-bar-chart me-1"></i> Metrics &amp; Details
+            </a>
+            <div class="btn-group btn-group-sm">
+              <a href="{{ url_for('campaigns.edit', campaign_id=camp.campaign_id) }}" class="btn btn-indie-outline" title="Edit Campaign">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <form method="POST" action="{{ url_for('campaigns.delete', campaign_id=camp.campaign_id) }}" class="d-inline confirm-action" data-confirm-message="Delete campaign '{{ camp.campaign_name }}' and all its metrics?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-outline-danger">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="indie-card p-5 text-center text-muted">
+    <i class="bi bi-megaphone display-4 opacity-50 mb-3 d-block"></i>
+    <h2 class="h5 fw-bold text-main mb-1">No campaigns found</h2>
+    <p class="text-secondary small mb-3">
+      {% if platform_filter or status_filter %}
+        No campaigns matched the selected filters.
+      {% else %}
+        Launch your first promotional campaign to begin tracking empirical clicks and streams.
+      {% endif %}
+    </p>
+    {% if platform_filter or status_filter %}
+      <a href="{{ url_for('campaigns.index') }}" class="btn btn-indie-outline btn-sm">Clear Filters</a>
+    {% else %}
+      <a href="{{ url_for('campaigns.create') }}" class="btn btn-indie-primary btn-sm">Launch First Campaign</a>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% endblock %}

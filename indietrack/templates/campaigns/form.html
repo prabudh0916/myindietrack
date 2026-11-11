@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — IndieTrack{% endblock %}
+{% block content %}
+<div class="row justify-content-center py-4">
+  <div class="col-md-8 col-lg-7">
+    <div class="indie-card p-4 p-md-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h4 fw-bold text-main mb-1">{{ title }}</h1>
+          <p class="text-secondary small mb-0">Define campaign targets, budget, and promotional links</p>
+        </div>
+        <a href="{{ url_for('campaigns.index') }}" class="btn btn-indie-outline btn-sm">
+          <i class="bi bi-arrow-left me-1"></i> Back to Campaigns
+        </a>
+      </div>
+
+      <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+          <label for="campaign_name" class="form-label">Campaign Name</label>
+          {{ form.campaign_name(class="form-control" + (" is-invalid" if form.campaign_name.errors else ""), placeholder="e.g. Spotify Editorial Pre-Save Push", id="campaign_name") }}
+          {% for error in form.campaign_name.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label for="song_id" class="form-label">Promoted Song</label>
+            {{ form.song_id(class="form-select" + (" is-invalid" if form.song_id.errors else ""), id="song_id") }}
+            {% for error in form.song_id.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="col-md-6">
+            <label for="platform" class="form-label">Platform / Channel</label>
+            {{ form.platform(class="form-select" + (" is-invalid" if form.platform.errors else ""), id="platform") }}
+            {% for error in form.platform.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label for="objective" class="form-label">Primary Objective</label>
+            {{ form.objective(class="form-select" + (" is-invalid" if form.objective.errors else ""), id="objective") }}
+            {% for error in form.objective.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="col-md-6">
+            <label for="budget" class="form-label">Campaign Budget (USD)</label>
+            {{ form.budget(class="form-control" + (" is-invalid" if form.budget.errors else ""), id="budget", placeholder="0.00") }}
+            {% for error in form.budget.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label for="start_date" class="form-label">Start Date</label>
+            {{ form.start_date(class="form-control" + (" is-invalid" if form.start_date.errors else ""), id="start_date", type="date") }}
+            {% for error in form.start_date.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+          <div class="col-md-6">
+            <label for="end_date" class="form-label">End Date (Optional)</label>
+            {{ form.end_date(class="form-control" + (" is-invalid" if form.end_date.errors else ""), id="end_date", type="date") }}
+            {% for error in form.end_date.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="status" class="form-label">Campaign Status</label>
+          {{ form.status(class="form-select" + (" is-invalid" if form.status.errors else ""), id="status") }}
+          {% for error in form.status.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="mb-4">
+          <label for="landing_url" class="form-label">Target Landing / SmartURL Link (Optional)</label>
+          {{ form.landing_url(class="form-control" + (" is-invalid" if form.landing_url.errors else ""), id="landing_url", placeholder="https://distrokid.com/hyperfollow/...") }}
+          {% for error in form.landing_url.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+          <small class="text-secondary d-block mt-1">Never enter platform passwords or private API tokens here.</small>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+          <a href="{{ url_for('campaigns.index') }}" class="btn btn-indie-outline">Cancel</a>
+          {{ form.submit(class="btn btn-indie-primary px-4") }}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

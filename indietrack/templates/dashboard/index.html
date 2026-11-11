@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block title %}Artist Dashboard — IndieTrack{% endblock %}
+{% block content %}
+
+<!-- Header & Quick Action Row -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <h1 class="h3 fw-bold text-main mb-0">{{ profile.artist_name }}</h1>
+      <span class="badge bg-secondary-subtle text-secondary border small">{{ profile.primary_genre }}</span>
+      {% if stats.has_sample_data %}
+        <span class="badge badge-source-sample" title="Includes clearly identified sample data records">
+          <i class="bi bi-info-circle me-1"></i> SAMPLE DATA INCLUDED
+        </span>
+      {% endif %}
+    </div>
+    <p class="text-secondary small mb-0">Overview of release schedules, active campaigns, and empirical marketing performance.</p>
+  </div>
+
+  <div class="d-flex gap-2 flex-wrap">
+    <a href="{{ url_for('songs.create') }}" class="btn btn-indie-outline btn-sm">
+      <i class="bi bi-music-note me-1"></i> Add Song
+    </a>
+    <a href="{{ url_for('releases.create') }}" class="btn btn-indie-outline btn-sm">
+      <i class="bi bi-calendar-plus me-1"></i> Schedule Release
+    </a>
+    <a href="{{ url_for('campaigns.create') }}" class="btn btn-indie-primary btn-sm">
+      <i class="bi bi-megaphone me-1"></i> Launch Campaign
+    </a>
+  </div>
+</div>
+
+<!-- Primary KPI Metric Cards Row -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Catalog Songs</div>
+      <div class="kpi-value">{{ stats.total_songs }}</div>
+      <div class="kpi-sub"><a href="{{ url_for('songs.index') }}" class="text-secondary">View library &rarr;</a></div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Upcoming Releases</div>
+      <div class="kpi-value text-primary">{{ stats.upcoming_releases_count }}</div>
+      <div class="kpi-sub"><a href="{{ url_for('releases.index') }}" class="text-secondary">View schedule &rarr;</a></div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Active Campaigns</div>
+      <div class="kpi-value text-info">{{ stats.active_campaigns }}</div>
+      <div class="kpi-sub"><a href="{{ url_for('campaigns.index') }}" class="text-secondary">Manage &rarr;</a></div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Recorded Clicks</div>
+      <div class="kpi-value text-cyan">{{ "{:,}".format(stats.total_clicks) }}</div>
+      <div class="kpi-sub text-muted">{{ "{:,}".format(stats.total_impressions) }} views</div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Total Spend</div>
+      <div class="kpi-value text-warning">${{ "{:,.2f}".format(stats.total_spend) }}</div>
+      <div class="kpi-sub text-muted">Across all channels</div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Average CPC</div>
+      <div class="kpi-value text-success">${{ "{:.2f}".format(stats.cost_per_click) }}</div>
+      <div class="kpi-sub text-muted">{{ stats.click_through_rate }}% CTR</div>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive Visualizations Row -->
+<div class="row g-4 mb-4">
+  <!-- Line Chart: Performance Trends Over Time -->
+  <div class="col-lg-8">
+    <div class="indie-card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="h5 fw-bold text-main mb-0">Campaign Performance Over Time</h2>
+          <small class="text-secondary">Daily recorded clicks, reported streams, and marketing spend</small>
+        </div>
+        <a href="{{ url_for('analytics.index') }}" class="btn btn-indie-outline btn-sm">Full Analytics &rarr;</a>
+      </div>
+      <div style="height: 300px; position: relative;">
+        <canvas id="performanceTrendsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Doughnut Chart: Platform Distribution -->
+  <div class="col-lg-4">
+    <div class="indie-card p-4 h-100">
+      <div class="mb-3">
+        <h2 class="h5 fw-bold text-main mb-0">Platform Share</h2>
+        <small class="text-secondary">Marketing spend by platform</small>
+      </div>
+      <div style="height: 300px; position: relative;">
+        <canvas id="platformDistributionChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Row: Recent Campaigns & Upcoming Releases -->
+<div class="row g-4">
+  <!-- Recent Campaigns -->
+  <div class="col-lg-7">
+    <div class="indie-card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 fw-bold text-main mb-0">Recent Promotional Campaigns</h2>
+        <a href="{{ url_for('campaigns.index') }}" class="btn btn-indie-outline btn-sm">All Campaigns &rarr;</a>
+      </div>
+
+      {% if stats.recent_campaigns %}
+        <div class="table-responsive">
+          <table class="table table-indie mb-0">
+            <thead>
+              <tr>
+                <th>Campaign</th>
+                <th>Platform</th>
+                <th>Budget / Spend</th>
+                <th>Clicks</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for camp in stats.recent_campaigns %}
+                <tr>
+                  <td>
+                    <a href="{{ url_for('campaigns.detail', campaign_id=camp.campaign_id) }}" class="fw-semibold text-main text-decoration-none">
+                      {{ camp.campaign_name }}
+                    </a>
+                    <div class="small text-muted">{{ camp.song.title }}</div>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary-subtle text-secondary border">{{ camp.platform }}</span>
+                  </td>
+                  <td>
+                    <div class="small fw-semibold text-main">${{ "{:.2f}".format(camp.total_spend) }}</div>
+                    <div class="small text-muted">of ${{ "{:.2f}".format(camp.budget) }}</div>
+                  </td>
+                  <td>
+                    <span class="fw-semibold text-info">{{ "{:,}".format(camp.total_clicks) }}</span>
+                  </td>
+                  <td>
+                    <span class="badge {% if camp.status == 'active' %}badge-status-active{% else %}badge-status-demo{% endif %}">
+                      {{ camp.status | upper }}
+                    </span>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="text-center py-4 text-muted">
+          <i class="bi bi-megaphone display-6 opacity-50 mb-2 d-block"></i>
+          <p class="mb-2">No promotional campaigns created yet.</p>
+          <a href="{{ url_for('campaigns.create') }}" class="btn btn-indie-primary btn-sm">Launch First Campaign</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Upcoming Releases List -->
+  <div class="col-lg-5">
+    <div class="indie-card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 fw-bold text-main mb-0">Upcoming Releases</h2>
+        <a href="{{ url_for('releases.index') }}" class="btn btn-indie-outline btn-sm">Release Schedule &rarr;</a>
+      </div>
+
+      {% if stats.upcoming_releases_list %}
+        <div class="list-group list-group-flush bg-transparent">
+          {% for rel in stats.upcoming_releases_list %}
+            <div class="list-group-item bg-transparent px-0 py-3 border-subtle">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="fw-bold text-main mb-1">{{ rel.song.title }}</h6>
+                  <small class="text-secondary">
+                    <i class="bi bi-disc me-1"></i> {{ rel.release_type | capitalize }} &bull; {{ rel.song.genre }}
+                  </small>
+                </div>
+                <div class="text-end">
+                  <div class="badge bg-primary-subtle text-primary border border-primary-subtle mb-1">
+                    {{ rel.release_date.strftime("%b %d, %Y") }}
+                  </div>
+                  <div class="small text-muted">{{ rel.status | capitalize }}</div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-4 text-muted">
+          <i class="bi bi-calendar-event display-6 opacity-50 mb-2 d-block"></i>
+          <p class="mb-2">No scheduled releases in the pipeline.</p>
+          <a href="{{ url_for('releases.create') }}" class="btn btn-indie-outline btn-sm">Schedule a Release</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  window.dashboardData = {
+    timeSeries: {{ time_series | tojson }},
+    platforms: {{ platform_dist | tojson }}
+  };
+</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

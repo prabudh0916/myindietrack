@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}IndieTrack — Music Release & Promotion Analytics Platform{% endblock %}
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero-gradient text-center py-5">
+  <div class="container py-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill mb-3 fw-semibold">
+          <i class="bi bi-disc-fill me-1"></i> Music Analytics Platform for Independent Artists
+        </span>
+        <h1 class="display-4 fw-extrabold text-main mb-3" style="letter-spacing: -0.03em;">
+          Master Your Music Releases &amp; Marketing Analytics
+        </h1>
+        <p class="lead text-secondary mb-4 mx-auto" style="max-width: 720px;">
+          IndieTrack empowers independent musicians and managers to organize song catalogs, schedule releases across DSPs, track empirical promotional campaign metrics, and safeguard audio and artwork assets with cloud storage.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap mb-4">
+          <a href="{{ url_for('auth.register') }}" class="btn btn-indie-primary btn-lg px-4">
+            <i class="bi bi-rocket-takeoff me-2"></i> Start Artist Workspace
+          </a>
+          <a href="{{ url_for('auth.login') }}" class="btn btn-indie-outline btn-lg px-4">
+            <i class="bi bi-box-arrow-in-right me-2"></i> Artist / Admin Login
+          </a>
+        </div>
+
+        <!-- Strict Data Provenance Disclaimer Required by Project Purpose -->
+        <div class="alert alert-dark border border-secondary-subtle d-inline-block text-start p-3 rounded-3 shadow-sm mx-auto" style="max-width: 760px;">
+          <div class="d-flex gap-2">
+            <i class="bi bi-info-circle-fill text-warning fs-5 flex-shrink-0"></i>
+            <small class="text-secondary">
+              <strong class="text-main">Data Provenance Notice:</strong> Analytics within IndieTrack are derived from artist-entered metric records, authorized CSV imports, and clearly labeled sample data. Live automated API synchronization with Spotify for Artists, YouTube Analytics, or Meta Ads is only active when explicit OAuth credentials are provided and verified.
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Dashboard Visual Preview Section -->
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="h3 fw-bold text-main">Artist Dashboard Workspace</h2>
+      <p class="text-secondary">High-visibility operational metrics, time-series performance trends, and platform attribution.</p>
+    </div>
+
+    <!-- Live-styled mock preview -->
+    <div class="indie-card p-4 p-lg-5 shadow-lg position-relative overflow-hidden">
+      <!-- Glow element -->
+      <div style="position: absolute; top: -50px; right: -50px; width: 250px; height: 250px; background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%); pointer-events: none;"></div>
+
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+          <span class="badge badge-source-sample me-2">DEMO DATASET</span>
+          <h3 class="h5 fw-bold text-main d-inline">Luna Horizon &mdash; Synthwave &amp; Indie Pop</h3>
+        </div>
+        <span class="text-secondary small"><i class="bi bi-database-check text-success me-1"></i> Relational 3NF Query View</span>
+      </div>
+
+      <!-- Preview KPI Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="kpi-card">
+            <div class="kpi-title">Recorded Clicks</div>
+            <div class="kpi-value text-info">2,325</div>
+            <div class="kpi-sub"><i class="bi bi-arrow-up-right text-success"></i> 24.8% CTR</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="kpi-card">
+            <div class="kpi-title">Reported Streams</div>
+            <div class="kpi-value text-primary">2,265</div>
+            <div class="kpi-sub"><i class="bi bi-music-note-beamed"></i> DSP Conversions</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="kpi-card">
+            <div class="kpi-title">Total Spend</div>
+            <div class="kpi-value text-warning">$645.00</div>
+            <div class="kpi-sub">Across 3 Campaigns</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="kpi-card">
+            <div class="kpi-title">Average CPC</div>
+            <div class="kpi-value text-success">$0.28</div>
+            <div class="kpi-sub">Cost Per Link Click</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Preview Chart mockup -->
+      <div class="p-4 rounded-3 border border-secondary-subtle" style="background-color: var(--bg-surface-elevated);">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="fw-semibold small text-secondary"><i class="bi bi-activity text-info me-1"></i> Multi-Platform Campaign Traction Over Time</span>
+          <span class="badge bg-dark border text-muted">Daily Aggregation</span>
+        </div>
+        <div style="height: 140px; display: flex; align-items: flex-end; gap: 8px;" class="px-2">
+          <div style="height: 25%; flex: 1; background: var(--accent-gradient); border-radius: 4px;" title="Oct 01: $25 spend"></div>
+          <div style="height: 40%; flex: 1; background: var(--accent-gradient); border-radius: 4px;" title="Oct 05: $45 spend"></div>
+          <div style="height: 55%; flex: 1; background: var(--accent-gradient); border-radius: 4px;" title="Oct 06: $60 spend"></div>
+          <div style="height: 70%; flex: 1; background: var(--accent-gradient); border-radius: 4px;" title="Oct 10: $70 spend"></div>
+          <div style="height: 85%; flex: 1; background: var(--accent-gradient); border-radius: 4px;" title="Oct 12: $110 spend"></div>
+          <div style="height: 80%; flex: 1; background: var(--accent-gradient); border-radius: 4px;" title="Oct 15: $80 spend"></div>
+          <div style="height: 75%; flex: 1; background: var(--accent-gradient); border-radius: 4px;" title="Oct 16: $65 spend"></div>
+          <div style="height: 90%; flex: 1; background: var(--accent-gradient); border-radius: 4px;" title="Oct 20: $55 spend"></div>
+          <div style="height: 100%; flex: 1; background: var(--accent-gradient); border-radius: 4px;" title="Oct 22: $85 spend"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Feature Pillars -->
+<section id="features" class="py-5 border-top border-subtle">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="h3 fw-bold text-main">Engineered for Independent Musicians</h2>
+      <p class="text-secondary">Complete full-stack workflow from scratch demo to commercial release campaign.</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="indie-card p-4 h-100">
+          <div class="text-primary mb-3">
+            <i class="bi bi-disc fs-2"></i>
+          </div>
+          <h3 class="h5 fw-bold text-main mb-2">Music Library &amp; Releases</h3>
+          <p class="text-secondary small mb-0">
+            Organize song metadata, audio stems, lyrics, and production notes. Schedule singles, EPs, and albums across target release dates with strict ownership isolation.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="indie-card p-4 h-100">
+          <div class="text-info mb-3">
+            <i class="bi bi-bullseye fs-2"></i>
+          </div>
+          <h3 class="h5 fw-bold text-main mb-2">Campaign Performance Tracking</h3>
+          <p class="text-secondary small mb-0">
+            Track promotions across Spotify, YouTube Shorts, Instagram Reels, and TikTok. Record impressions, clicks, streams, and spend with safe derived metrics.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="indie-card p-4 h-100">
+          <div class="text-success mb-3">
+            <i class="bi bi-shield-check fs-2"></i>
+          </div>
+          <h3 class="h5 fw-bold text-main mb-2">Cloud Connected &amp; Secure</h3>
+          <p class="text-secondary small mb-0">
+            Backed by Azure SQL Database and Azure Blob Storage with private access controls, magic-bytes MIME validation, CSRF defense, and formula-injection-safe CSV export.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="py-5 text-center">
+  <div class="container">
+    <div class="indie-card p-5 mx-auto" style="max-width: 800px; background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, var(--bg-surface) 80%);">
+      <h2 class="h3 fw-bold text-main mb-3">Ready to Track Your Next Release?</h2>
+      <p class="text-secondary mb-4">
+        Sign in to your artist workspace or create an account to begin recording real promotional performance.
+      </p>
+      <div class="d-flex justify-content-center gap-3">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-indie-primary btn-lg">Create Free Account</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-indie-outline btn-lg">Sign In</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

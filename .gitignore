@@ -1,0 +1,40 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# Environment Variables & Secrets
+.env
+*.env.local
+*.key
+*.pem
+*.pfx
+
+# Local Uploads / Temp storage in local fallback mode
+uploads/
+scratch/
+instance/
+*.sqlite
+*.sqlite3
+*.db
+
+# Operating System & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo

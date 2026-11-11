@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block title %}Analytics & Reports — IndieTrack{% endblock %}
+{% block content %}
+
+<!-- Header & Export Action -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <h1 class="h3 fw-bold text-main mb-0">Analytics &amp; Performance Reports</h1>
+      {% if has_sample_data %}
+        <span class="badge badge-source-sample">
+          <i class="bi bi-info-circle me-1"></i> DEMO / SAMPLE DATA PRESENT
+        </span>
+      {% endif %}
+    </div>
+    <p class="text-secondary small mb-0">Multi-dimensional promotional analysis with verifiable data provenance.</p>
+  </div>
+
+  <div class="d-flex gap-2 flex-wrap">
+    <!-- Export CSV with query params preserving current filters -->
+    <a href="{{ url_for('analytics.export_csv', start_date=start_date, end_date=end_date, song_id=selected_song, platform=selected_platform, campaign_id=selected_campaign) }}" class="btn btn-indie-primary">
+      <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Safe CSV
+    </a>
+
+    {% if is_dev_mode and has_sample_data %}
+      <form method="POST" action="{{ url_for('analytics.clear_sample_data') }}" class="d-inline confirm-action" data-confirm-message="Clear all sample/demo metrics from your dashboard?">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-outline-warning" title="Remove fictional demo records">
+          <i class="bi bi-eraser me-1"></i> Clear Sample Data
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Filter Control Bar -->
+<div class="indie-card p-4 mb-4">
+  <form method="GET" action="{{ url_for('analytics.index') }}" class="row g-3 align-items-end">
+    <div class="col-sm-6 col-md-2">
+      <label for="start_date" class="form-label small">From Date</label>
+      <input type="date" name="start_date" id="start_date" value="{{ start_date }}" class="form-control form-control-sm">
+    </div>
+
+    <div class="col-sm-6 col-md-2">
+      <label for="end_date" class="form-label small">To Date</label>
+      <input type="date" name="end_date" id="end_date" value="{{ end_date }}" class="form-control form-control-sm">
+    </div>
+
+    <div class="col-sm-6 col-md-2">
+      <label for="song_id" class="form-label small">Filter by Song</label>
+      <select name="song_id" id="song_id" class="form-select form-select-sm">
+        <option value="">All Songs</option>
+        {% for s in artist_songs %}
+          <option value="{{ s.song_id }}" {% if selected_song == s.song_id %}selected{% endif %}>{{ s.title }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-sm-6 col-md-2">
+      <label for="platform" class="form-label small">Filter by Platform</label>
+      <select name="platform" id="platform" class="form-select form-select-sm">
+        <option value="">All Platforms</option>
+        {% for p in platforms %}
+          <option value="{{ p }}" {% if selected_platform == p %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-sm-6 col-md-2">
+      <label for="campaign_id" class="form-label small">Filter by Campaign</label>
+      <select name="campaign_id" id="campaign_id" class="form-select form-select-sm">
+        <option value="">All Campaigns</option>
+        {% for c in artist_campaigns %}
+          <option value="{{ c.campaign_id }}" {% if selected_campaign == c.campaign_id %}selected{% endif %}>{{ c.campaign_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-sm-6 col-md-2 d-flex gap-2">
+      <button type="submit" class="btn btn-indie-outline btn-sm w-100">Apply Filters</button>
+      {% if start_date or end_date or selected_song or selected_platform or selected_campaign %}
+        <a href="{{ url_for('analytics.index') }}" class="btn btn-outline-secondary btn-sm" title="Reset All Filters">
+          <i class="bi bi-x-lg"></i>
+        </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- Aggregated Filtered KPIs -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Filtered Impressions</div>
+      <div class="kpi-value">{{ "{:,}".format(total_imps) }}</div>
+      <div class="kpi-sub">Ad/promo views</div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Filtered Clicks</div>
+      <div class="kpi-value text-info">{{ "{:,}".format(total_clicks) }}</div>
+      <div class="kpi-sub">Link interactions</div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Reported Streams</div>
+      <div class="kpi-value text-primary">{{ "{:,}".format(total_streams) }}</div>
+      <div class="kpi-sub">DSP plays</div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Filtered Spend</div>
+      <div class="kpi-value text-warning">${{ "{:,.2f}".format(total_spend) }}</div>
+      <div class="kpi-sub">Total ad budget</div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Effective CPC</div>
+      <div class="kpi-value text-success">${{ "{:.2f}".format(overall_cpc) }}</div>
+      <div class="kpi-sub">Cost Per Click</div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Click Rate (CTR)</div>
+      <div class="kpi-value text-cyan">{{ overall_ctr }}%</div>
+      <div class="kpi-sub">Clicks / Imps</div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart Section -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-8">
+    <div class="indie-card p-4 h-100">
+      <h2 class="h5 fw-bold text-main mb-3">Filtered Trend Trajectory</h2>
+      <div style="height: 320px; position: relative;">
+        <canvas id="performanceTrendsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="indie-card p-4 h-100">
+      <h2 class="h5 fw-bold text-main mb-3">Channel Spend Allocation</h2>
+      <div style="height: 320px; position: relative;">
+        <canvas id="platformDistributionChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Granular Data Records Table -->
+<div class="indie-card">
+  <div class="p-4 border-bottom border-subtle d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="h5 fw-bold text-main mb-0">Filtered Empirical Metric Log</h2>
+      <small class="text-secondary">All rows are evaluated against database constraints</small>
+    </div>
+    <span class="badge bg-secondary-subtle text-secondary border">{{ records | length }} Logged Entries</span>
+  </div>
+
+  {% if records %}
+    <div class="table-responsive">
+      <table class="table table-indie mb-0">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Song</th>
+            <th>Campaign</th>
+            <th>Platform</th>
+            <th>Impressions</th>
+            <th>Clicks</th>
+            <th>Streams</th>
+            <th>Spend</th>
+            <th>CPC</th>
+            <th>Data Source</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m, c, s in records %}
+            <tr>
+              <td class="fw-semibold text-main">{{ m.metric_date.strftime("%Y-%m-%d") }}</td>
+              <td><a href="{{ url_for('songs.detail', song_id=s.song_id) }}" class="text-decoration-none text-main">{{ s.title }}</a></td>
+              <td><a href="{{ url_for('campaigns.detail', campaign_id=c.campaign_id) }}" class="text-decoration-none text-main">{{ c.campaign_name }}</a></td>
+              <td><span class="badge bg-secondary-subtle text-secondary border">{{ c.platform }}</span></td>
+              <td>{{ "{:,}".format(m.impressions) }}</td>
+              <td class="text-info fw-semibold">{{ "{:,}".format(m.clicks) }}</td>
+              <td class="text-primary fw-semibold">{{ "{:,}".format(m.reported_streams) }}</td>
+              <td class="text-warning fw-semibold">${{ "{:.2f}".format(m.spend) }}</td>
+              <td class="text-success">${{ "{:.2f}".format(m.cost_per_click) }}</td>
+              <td>
+                <span class="badge {% if m.data_source == 'sample_data' %}badge-source-sample{% else %}badge-source-manual{% endif %}">
+                  {{ m.data_source }}
+                </span>
+              </td>
+              <td><small class="text-muted">{{ m.notes or "--" }}</small></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-funnel display-5 opacity-50 mb-2 d-block"></i>
+      <p class="mb-0">No metrics match the selected filter criteria.</p>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  window.dashboardData = {
+    timeSeries: {{ time_series | tojson }},
+    platforms: {{ platform_dist | tojson }}
+  };
+</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

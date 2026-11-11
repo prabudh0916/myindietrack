@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Music Library — IndieTrack{% endblock %}
+{% block content %}
+
+<!-- Header & Add Song -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+  <div>
+    <h1 class="h3 fw-bold text-main mb-1">Music Library</h1>
+    <p class="text-secondary small mb-0">Manage your catalog of original songs, masters, and recordings.</p>
+  </div>
+  <a href="{{ url_for('songs.create') }}" class="btn btn-indie-primary">
+    <i class="bi bi-plus-lg me-1"></i> Add New Song
+  </a>
+</div>
+
+<!-- Search, Filter & Sort Form -->
+<div class="indie-card p-3 mb-4">
+  <form method="GET" action="{{ url_for('songs.index') }}" class="row g-2 align-items-center">
+    <div class="col-md-5">
+      <div class="input-group">
+        <span class="input-group-text bg-transparent border-end-0 border-card text-muted">
+          <i class="bi bi-search"></i>
+        </span>
+        <input type="text" name="q" value="{{ search_term }}" class="form-control border-start-0" placeholder="Search by song title or genre...">
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+      <select name="status" class="form-select">
+        <option value="">All Production Statuses</option>
+        <option value="demo" {% if status_filter == 'demo' %}selected{% endif %}>Demo / Scratch</option>
+        <option value="in-progress" {% if status_filter == 'in-progress' %}selected{% endif %}>In Progress / Recording</option>
+        <option value="mastered" {% if status_filter == 'mastered' %}selected{% endif %}>Mastered / Ready</option>
+        <option value="archived" {% if status_filter == 'archived' %}selected{% endif %}>Archived</option>
+      </select>
+    </div>
+
+    <div class="col-sm-6 col-md-2">
+      <select name="sort" class="form-select">
+        <option value="created_at_desc" {% if sort_by == 'created_at_desc' %}selected{% endif %}>Newest First</option>
+        <option value="created_at_asc" {% if sort_by == 'created_at_asc' %}selected{% endif %}>Oldest First</option>
+        <option value="title_asc" {% if sort_by == 'title_asc' %}selected{% endif %}>Title (A-Z)</option>
+        <option value="title_desc" {% if sort_by == 'title_desc' %}selected{% endif %}>Title (Z-A)</option>
+      </select>
+    </div>
+
+    <div class="col-md-2 d-flex gap-2">
+      <button type="submit" class="btn btn-indie-outline w-100">Filter</button>
+      {% if search_term or status_filter %}
+        <a href="{{ url_for('songs.index') }}" class="btn btn-outline-secondary" title="Clear Filters">
+          <i class="bi bi-x-lg"></i>
+        </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- Songs Table -->
+<div class="indie-card">
+  {% if songs %}
+    <div class="table-responsive">
+      <table class="table table-indie mb-0">
+        <thead>
+          <tr>
+            <th>Song Title</th>
+            <th>Genre</th>
+            <th>Duration</th>
+            <th>Status</th>
+            <th>Releases</th>
+            <th>Campaigns</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for song in songs %}
+            <tr>
+              <td>
+                <a href="{{ url_for('songs.detail', song_id=song.song_id) }}" class="fw-bold text-main text-decoration-none">
+                  {{ song.title }}
+                </a>
+                {% if song.description %}
+                  <div class="small text-muted text-truncate" style="max-width: 280px;">{{ song.description }}</div>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge bg-secondary-subtle text-secondary border">{{ song.genre }}</span>
+              </td>
+              <td>
+                <span class="font-monospace small text-muted">{{ song.formatted_duration }}</span>
+              </td>
+              <td>
+                <span class="badge 
+                  {% if song.status == 'mastered' %}badge-status-mastered
+                  {% elif song.status == 'in-progress' %}badge-status-inprogress
+                  {% else %}badge-status-demo{% endif %}">
+                  {{ song.status | upper }}
+                </span>
+              </td>
+              <td>
+                <span class="badge bg-dark border text-muted">{{ song.releases | length }} scheduled</span>
+              </td>
+              <td>
+                <span class="badge bg-dark border text-muted">{{ song.campaigns | length }} active</span>
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a href="{{ url_for('songs.detail', song_id=song.song_id) }}" class="btn btn-indie-outline" title="View Details">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                  <a href="{{ url_for('songs.edit', song_id=song.song_id) }}" class="btn btn-indie-outline" title="Edit Song">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSongModal{{ song.song_id }}" title="Delete Song">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+
+                <!-- Delete Confirmation Modal -->
+                <div class="modal fade" id="deleteSongModal{{ song.song_id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ song.song_id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content indie-card text-start">
+                      <div class="modal-header border-subtle">
+                        <h5 class="modal-title fw-bold text-main" id="deleteModalLabel{{ song.song_id }}">Confirm Delete Song</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p class="text-secondary mb-2">
+                          Are you sure you want to permanently delete <strong class="text-main">"{{ song.title }}"</strong>?
+                        </p>
+                        <div class="alert alert-danger small mb-0 border-0">
+                          <i class="bi bi-exclamation-triangle-fill me-1"></i> Warning: Deleting this song will also permanently cascade-delete all associated releases and marketing campaigns.
+                        </div>
+                      </div>
+                      <div class="modal-footer border-subtle">
+                        <button type="button" class="btn btn-indie-outline btn-sm" data-bs-dismiss="modal">Cancel</button>
+                        <form method="POST" action="{{ url_for('songs.delete', song_id=song.song_id) }}" class="d-inline">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                          <button type="submit" class="btn btn-danger btn-sm">Yes, Delete Song</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-music-note-beamed display-4 opacity-50 mb-3 d-block"></i>
+      <h2 class="h5 fw-bold text-main mb-1">No songs found</h2>
+      <p class="text-secondary small mb-3">
+        {% if search_term or status_filter %}
+          No songs matched your search criteria. Try clearing your filters.
+        {% else %}
+          Your music catalog is currently empty. Add your first song to begin.
+        {% endif %}
+      </p>
+      {% if search_term or status_filter %}
+        <a href="{{ url_for('songs.index') }}" class="btn btn-indie-outline btn-sm">Clear Filters</a>
+      {% else %}
+        <a href="{{ url_for('songs.create') }}" class="btn btn-indie-primary btn-sm">Add First Song</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}User Management — Admin — IndieTrack{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+  <div>
+    <h1 class="h3 fw-bold text-main mb-1"><i class="bi bi-shield-lock text-warning me-2"></i> User Directory &amp; Roles</h1>
+    <p class="text-secondary small mb-0">Role-based access control and account status enforcement (Sensitive credentials excluded).</p>
+  </div>
+  <a href="{{ url_for('admin.audit') }}" class="btn btn-indie-outline">
+    <i class="bi bi-clock-history me-1"></i> View Audit Trail
+  </a>
+</div>
+
+<div class="indie-card">
+  <div class="table-responsive">
+    <table class="table table-indie mb-0">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Email Address</th>
+          <th>Artist / Profile</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Registered</th>
+          <th class="text-end">Administrative Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td class="font-monospace text-muted">#{{ u.user_id }}</td>
+            <td class="fw-semibold text-main">{{ u.email }}</td>
+            <td>
+              {% if u.artist_profile %}
+                <span class="text-main">{{ u.artist_profile.artist_name }}</span>
+                <span class="badge bg-secondary-subtle text-secondary border small ms-1">{{ u.artist_profile.primary_genre }}</span>
+              {% else %}
+                <span class="text-muted small">No profile attached</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge {% if u.role == 'admin' %}bg-warning-subtle text-warning border border-warning-subtle{% else %}bg-primary-subtle text-primary border border-primary-subtle{% endif %}">
+                {{ u.role | upper }}
+              </span>
+            </td>
+            <td>
+              {% if u.is_active %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle">ACTIVE</span>
+              {% else %}
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">DEACTIVATED</span>
+              {% endif %}
+            </td>
+            <td><small class="text-muted">{{ u.created_at.strftime("%b %d, %Y") }}</small></td>
+            <td class="text-end">
+              <div class="d-inline-flex gap-2">
+                <!-- Change Role Form -->
+                <form method="POST" action="{{ url_for('admin.change_role', user_id=u.user_id) }}" class="d-inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="role" value="{{ 'artist' if u.role == 'admin' else 'admin' }}">
+                  <button type="submit" class="btn btn-indie-outline btn-sm" title="Toggle role between artist and admin">
+                    Set {{ 'Artist' if u.role == 'admin' else 'Admin' }}
+                  </button>
+                </form>
+
+                <!-- Toggle Active Status Form -->
+                {% if u.user_id != current_user.user_id %}
+                  <form method="POST" action="{{ url_for('admin.toggle_user_status', user_id=u.user_id) }}" class="d-inline confirm-action" data-confirm-message="Are you sure you want to change activation status for {{ u.email }}?">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-sm {% if u.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                      {{ 'Deactivate' if u.is_active else 'Activate' }}
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

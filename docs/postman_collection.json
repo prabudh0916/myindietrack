@@ -1,0 +1,217 @@
+{
+  "info": {
+    "_postman_id": "c1f7b8a2-92b0-4f93-b541-e945c79e7019",
+    "name": "IndieTrack API Collection",
+    "description": "Comprehensive Postman test collection for the IndieTrack Music Release & Promotion Analytics Platform.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "System Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "health"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register Artist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {"key": "email", "value": "newartist@indietrack.local"},
+                {"key": "artist_name", "value": "Echo Valley"},
+                {"key": "password", "value": "ArtistDemo@2026!"},
+                {"key": "confirm_password", "value": "ArtistDemo@2026!"}
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Artist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {"key": "email", "value": "artist@indietrack.local"},
+                {"key": "password", "value": "ArtistDemo@2026!"}
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Songs (Music Library)",
+      "item": [
+        {
+          "name": "List Songs (JSON API)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/songs?q=Neon",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "songs"],
+              "query": [{"key": "q", "value": "Neon"}]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Song (JSON API)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Cyberpunk Dawn\",\n  \"genre\": \"Synthwave\",\n  \"duration_seconds\": 205,\n  \"status\": \"mastered\",\n  \"description\": \"Upbeat synthesizer arpeggios and punchy 80s drums.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/songs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "songs"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Campaigns & Metrics",
+      "item": [
+        {
+          "name": "List Campaigns (JSON API)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/campaigns",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "campaigns"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Record Metric (JSON API)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metric_date\": \"2026-10-23\",\n  \"impressions\": 1850,\n  \"clicks\": 210,\n  \"engagement\": 65,\n  \"reported_streams\": 145,\n  \"spend\": 32.00,\n  \"data_source\": \"manual_entry\",\n  \"notes\": \"Strong click-through-rate on TikTok audio trend\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/campaigns/1/metrics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "campaigns", "1", "metrics"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Analytics & Reports",
+      "item": [
+        {
+          "name": "Analytics Summary (JSON API)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/analytics/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "analytics", "summary"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Export Metrics CSV",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analytics/export-csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["analytics", "export-csv"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

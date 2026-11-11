@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}About & System Architecture — IndieTrack{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+
+      <!-- University & Student Header -->
+      <div class="indie-card p-4 p-md-5 mb-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+          <div>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill mb-2">
+              University Capstone Project
+            </span>
+            <h1 class="h2 fw-bold text-main mb-1">IndieTrack: Music Release &amp; Promotion Analytics Platform</h1>
+            <p class="text-secondary mb-3">Enterprise full-stack cloud application designed for independent musicians.</p>
+          </div>
+          <div class="text-md-end">
+            <span class="badge bg-secondary-subtle text-secondary border px-3 py-2">
+              <i class="bi bi-mortarboard-fill me-1"></i> Chandigarh University, Lucknow
+            </span>
+          </div>
+        </div>
+
+        <hr class="border-secondary-subtle my-3">
+
+        <div class="row g-3">
+          <div class="col-sm-6 col-md-3">
+            <div class="text-muted small">Student Name</div>
+            <div class="fw-semibold text-main">Prabudh Saxena Spring</div>
+          </div>
+          <div class="col-sm-6 col-md-3">
+            <div class="text-muted small">University UID</div>
+            <div class="fw-semibold text-main font-monospace">25LBCS3112</div>
+          </div>
+          <div class="col-sm-6 col-md-3">
+            <div class="text-muted small">Programme</div>
+            <div class="fw-semibold text-main">B.Tech &mdash; CSE</div>
+          </div>
+          <div class="col-sm-6 col-md-3">
+            <div class="text-muted small">Specialisation</div>
+            <div class="fw-semibold text-main">Artificial Intelligence &amp; ML</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Architectural Highlights Card -->
+      <div class="indie-card p-4 p-md-5 mb-4">
+        <h2 class="h4 fw-bold text-main mb-3"><i class="bi bi-layers text-primary me-2"></i> System Architecture &amp; RDBMS Design</h2>
+        <p class="text-secondary">
+          IndieTrack is architected as a secure, modular monolith following 3-Tier Enterprise Architecture, adhering to strict Third Normal Form (3NF) relational principles with referential integrity constraints, automated audit trails, and multi-cloud resilience:
+        </p>
+
+        <div class="row g-4 mt-2">
+          <div class="col-md-6">
+            <div class="p-3 rounded-3 border border-secondary-subtle h-100" style="background-color: var(--bg-surface-elevated);">
+              <h3 class="h6 fw-bold text-main mb-2"><i class="bi bi-database text-info me-1"></i> Relational Database (Azure SQL)</h3>
+              <ul class="text-secondary small ps-3 mb-0">
+                <li>Normalized 3NF relational schema across 8 entities (Users, Profiles, Songs, Releases, Campaigns, Metrics, Assets, AuditLogs).</li>
+                <li>Database Views: <code>CampaignPerformanceView</code> calculating zero-division-safe CTR, CPC, and CPS metrics.</li>
+                <li>Transact-SQL Stored Procedure: <code>sp_LaunchReleaseCampaign</code> enforcing atomic multi-step transactions with <code>BEGIN TRANSACTION</code>, <code>TRY...CATCH</code>, and automatic <code>ROLLBACK</code>.</li>
+                <li>Non-clustered indexes on high-frequency filters, composite joins, and foreign keys.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="p-3 rounded-3 border border-secondary-subtle h-100" style="background-color: var(--bg-surface-elevated);">
+              <h3 class="h6 fw-bold text-main mb-2"><i class="bi bi-shield-check text-success me-1"></i> Application Security Controls</h3>
+              <ul class="text-secondary small ps-3 mb-0">
+                <li>Secure Scrypt / PBKDF2 password hashing via <code>werkzeug.security</code>.</li>
+                <li>Cross-Site Request Forgery (CSRF) protection on all state-changing POST forms via Flask-WTF.</li>
+                <li>Spreadsheet Formula Injection (CWE-1236) defense on CSV exports, escaping <code>=, +, -, @, \t, \r</code> prefixes.</li>
+                <li>Magic-bytes MIME sniffing on file uploads with maximum size enforcement and private Azure Blob storage.</li>
+                <li>Server-side resource ownership checks on every request (cross-user data isolation).</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ready to Test Button -->
+      <div class="text-center">
+        <a href="{{ url_for('dashboard.index') }}" class="btn btn-indie-primary px-4 me-2">Go to Artist Dashboard</a>
+        <a href="{{ url_for('main.health_check') }}" class="btn btn-indie-outline px-4" target="_blank">
+          <i class="bi bi-heart-pulse me-1"></i> View Live Health Probe JSON
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

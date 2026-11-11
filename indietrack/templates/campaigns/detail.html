@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block title %}{{ campaign.campaign_name }} — Campaign Detail — IndieTrack{% endblock %}
+{% block content %}
+
+<!-- Campaign Header Banner -->
+<div class="indie-card p-4 p-md-5 mb-4">
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+        <span class="badge bg-secondary-subtle text-secondary border">
+          <i class="bi bi-broadcast me-1"></i> {{ campaign.platform }}
+        </span>
+        <span class="badge {% if campaign.status == 'active' %}badge-status-active{% else %}badge-status-demo{% endif %}">
+          {{ campaign.status | upper }}
+        </span>
+        <span class="badge bg-dark border text-muted">Goal: {{ campaign.objective | capitalize }}</span>
+      </div>
+      <h1 class="h2 fw-bold text-main mb-1">{{ campaign.campaign_name }}</h1>
+      <div class="small text-secondary mb-3">
+        Promoting track:
+        <a href="{{ url_for('songs.detail', song_id=campaign.song_id) }}" class="fw-semibold text-main text-decoration-none">
+          "{{ campaign.song.title }}"
+        </a>
+        &bull; {{ campaign.song.genre }}
+      </div>
+
+      <div class="d-flex gap-3 small text-muted flex-wrap">
+        <span><i class="bi bi-calendar3 me-1"></i> {{ campaign.start_date.strftime("%b %d, %Y") }}{% if campaign.end_date %} &mdash; {{ campaign.end_date.strftime("%b %d, %Y") }}{% endif %}</span>
+        <span><i class="bi bi-cash-stack me-1"></i> Budget: ${{ "{:,.2f}".format(campaign.budget) }}</span>
+        {% if campaign.landing_url %}
+          <span>
+            <i class="bi bi-link-45deg me-1"></i>
+            <a href="{{ campaign.landing_url }}" target="_blank" rel="noopener noreferrer" class="text-info text-decoration-none">Landing URL &nearr;</a>
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{{ url_for('campaigns.edit', campaign_id=campaign.campaign_id) }}" class="btn btn-indie-outline btn-sm">
+        <i class="bi bi-pencil me-1"></i> Edit Campaign
+      </a>
+      <a href="{{ url_for('campaigns.index') }}" class="btn btn-indie-outline btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> All Campaigns
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Aggregated Campaign Performance KPIs -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Total Spend</div>
+      <div class="kpi-value text-warning">${{ "{:,.2f}".format(campaign.total_spend) }}</div>
+      <div class="kpi-sub">{{ campaign.budget_utilized_pct }}% of budget</div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Recorded Clicks</div>
+      <div class="kpi-value text-info">{{ "{:,}".format(campaign.total_clicks) }}</div>
+      <div class="kpi-sub">Link interactions</div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Reported Streams</div>
+      <div class="kpi-value text-primary">{{ "{:,}".format(campaign.total_reported_streams) }}</div>
+      <div class="kpi-sub">DSP conversions</div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Impressions</div>
+      <div class="kpi-value">{{ "{:,}".format(campaign.total_impressions) }}</div>
+      <div class="kpi-sub">Ad/promo views</div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Cost Per Click (CPC)</div>
+      <div class="kpi-value text-success">${{ "{:.2f}".format(campaign.cost_per_click) }}</div>
+      <div class="kpi-sub">Safe zero-check calc</div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="kpi-card">
+      <div class="kpi-title">Click Rate (CTR)</div>
+      <div class="kpi-value text-cyan">{{ campaign.click_through_rate }}%</div>
+      <div class="kpi-sub">Clicks / Impressions</div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Metric Entry Accordion / Form -->
+<div class="indie-card p-4 mb-4">
+  <h2 class="h5 fw-bold text-main mb-2">Record Dated Campaign Metric</h2>
+  <p class="text-secondary small mb-3">
+    Enter empirical daily results from your platform ad dashboard. All metric definitions:
+    <strong>Impressions</strong> = views; <strong>Clicks</strong> = link taps; <strong>Streams</strong> = reported DSP plays; <strong>Spend</strong> = ad budget burned.
+  </p>
+
+  <form method="POST" action="{{ url_for('metrics.add', campaign_id=campaign.campaign_id) }}" class="row g-3 align-items-end">
+    {{ metric_form.hidden_tag() }}
+
+    <div class="col-sm-6 col-md-2">
+      <label for="metric_date" class="form-label small">Date</label>
+      {{ metric_form.metric_date(class="form-control form-control-sm", id="metric_date", type="date") }}
+    </div>
+
+    <div class="col-sm-6 col-md-2">
+      <label for="impressions" class="form-label small">Impressions</label>
+      {{ metric_form.impressions(class="form-control form-control-sm", id="impressions", placeholder="0") }}
+    </div>
+
+    <div class="col-sm-6 col-md-2">
+      <label for="clicks" class="form-label small">Clicks</label>
+      {{ metric_form.clicks(class="form-control form-control-sm", id="clicks", placeholder="0") }}
+    </div>
+
+    <div class="col-sm-6 col-md-2">
+      <label for="engagement" class="form-label small">Engagement</label>
+      {{ metric_form.engagement(class="form-control form-control-sm", id="engagement", placeholder="0") }}
+    </div>
+
+    <div class="col-sm-6 col-md-2">
+      <label for="reported_streams" class="form-label small">Reported Streams</label>
+      {{ metric_form.reported_streams(class="form-control form-control-sm", id="reported_streams", placeholder="0") }}
+    </div>
+
+    <div class="col-sm-6 col-md-2">
+      <label for="spend" class="form-label small">Spend ($)</label>
+      {{ metric_form.spend(class="form-control form-control-sm", id="spend", placeholder="0.00") }}
+    </div>
+
+    <div class="col-md-5">
+      <label for="data_source" class="form-label small">Data Provenance</label>
+      {{ metric_form.data_source(class="form-select form-select-sm", id="data_source") }}
+    </div>
+
+    <div class="col-md-5">
+      <label for="notes" class="form-label small">Observations / Notes</label>
+      {{ metric_form.notes(class="form-control form-control-sm", id="notes", placeholder="e.g. Launched TikTok sound clip") }}
+    </div>
+
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-indie-primary btn-sm w-100">
+        <i class="bi bi-plus-circle me-1"></i> Save Metric
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Metrics History Table -->
+<div class="indie-card">
+  <div class="p-4 border-bottom border-subtle d-flex justify-content-between align-items-center">
+    <h2 class="h5 fw-bold text-main mb-0">Empirical Metric History</h2>
+    <span class="badge bg-secondary-subtle text-secondary border">{{ campaign.metrics | length }} Dated Entries</span>
+  </div>
+
+  {% if campaign.metrics %}
+    <div class="table-responsive">
+      <table class="table table-indie mb-0">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Impressions</th>
+            <th>Clicks</th>
+            <th>Engagement</th>
+            <th>Reported Streams</th>
+            <th>Spend</th>
+            <th>CPC</th>
+            <th>Provenance</th>
+            <th>Notes</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in campaign.metrics %}
+            <tr>
+              <td class="fw-semibold text-main">{{ m.metric_date.strftime("%Y-%m-%d") }}</td>
+              <td>{{ "{:,}".format(m.impressions) }}</td>
+              <td class="text-info fw-semibold">{{ "{:,}".format(m.clicks) }}</td>
+              <td>{{ "{:,}".format(m.engagement) }}</td>
+              <td class="text-primary fw-semibold">{{ "{:,}".format(m.reported_streams) }}</td>
+              <td class="text-warning fw-semibold">${{ "{:.2f}".format(m.spend) }}</td>
+              <td class="text-success">${{ "{:.2f}".format(m.cost_per_click) }}</td>
+              <td>
+                <span class="badge {% if m.data_source == 'sample_data' %}badge-source-sample{% else %}badge-source-manual{% endif %}">
+                  {{ m.data_source }}
+                </span>
+              </td>
+              <td><small class="text-muted">{{ m.notes or "--" }}</small></td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a href="{{ url_for('metrics.edit', metric_id=m.metric_id) }}" class="btn btn-indie-outline" title="Edit Metric">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <form method="POST" action="{{ url_for('metrics.delete', metric_id=m.metric_id) }}" class="d-inline confirm-action" data-confirm-message="Delete this dated metric entry?">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-outline-danger">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-calendar-minus display-6 opacity-50 mb-2 d-block"></i>
+      <p class="mb-0">No dated metrics recorded for this campaign yet.</p>
+      <small class="text-secondary">Use the form above to record your first daily results.</small>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}
